@@ -578,9 +578,8 @@ export default function App() {
                                 <div className="symbol-sub">{t.name}</div>
                               </div>
                             </div>
-                          </td>
                           <td className="price-text">
-                            ${Number(t.price).toFixed(mode === 'new' ? 6 : 4)}
+                            {fmtPrice(t.price)}
                           </td>
                           {mode === 'new' ? (
                             <>
