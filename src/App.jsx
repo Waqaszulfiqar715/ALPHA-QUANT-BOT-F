@@ -2,6 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 const API_BASE = import.meta.env.VITE_BACKEND_URL || (import.meta.env.PROD ? 'https://alpha-quant-bot-b.onrender.com' : '');
 
+const fmtPrice = (val) => {
+  const p = Number(val || 0);
+  if (p === 0) return '$0.00';
+  if (p < 0.000001) return `$${p.toFixed(10)}`;
+  if (p < 0.0001) return `$${p.toFixed(8)}`;
+  if (p < 0.01) return `$${p.toFixed(6)}`;
+  if (p < 1) return `$${p.toFixed(4)}`;
+  return `$${p.toFixed(2)}`;
+};
+
 export default function App() {
   const [mode, setMode] = useState('existing'); // 'existing', 'new', 'history'
   const [symbols, setSymbols] = useState('BTC,ETH,SOL,BNB,DOGE,PEPE,WIF,SHIB');
@@ -354,17 +364,18 @@ export default function App() {
                     <tr>
                       <th>SYMBOL</th>
                       <th>ENTRY PRICE</th>
+                      <th>LIVE PRICE</th>
+                      <th>LIVE P&L</th>
                       <th>TAKE PROFIT (TP)</th>
                       <th>STOP LOSS (SL)</th>
-                      <th>RISK-REWARD</th>
-                      <th>SCORE</th>
+                      <th>RR RATIO</th>
                       <th>STATUS</th>
                     </tr>
                   </thead>
                   <tbody>
                     {activeSignals.length === 0 ? (
                       <tr className="empty-row">
-                        <td colSpan="7">
+                        <td colSpan="8">
                           No signals currently open. Bot will auto-add signals when Score ≥ 70 is detected!
                         </td>
                       </tr>
@@ -380,17 +391,40 @@ export default function App() {
                               </div>
                             </div>
                           </td>
-                          <td className="price-text">${Number(s.entry_price).toFixed(4)}</td>
+                          <td className="price-text">{fmtPrice(s.entry_price)}</td>
+                          <td className="price-text" style={{ fontWeight: 'bold' }}>
+                            {fmtPrice(s.current_price || s.entry_price)}
+                          </td>
+                          <td>
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                padding: '4px 10px',
+                                borderRadius: '6px',
+                                fontWeight: 'bold',
+                                fontSize: '13px',
+                                fontFamily: 'var(--font-mono)',
+                                background:
+                                  (s.unrealized_pnl_pct || 0) >= 0
+                                    ? 'rgba(16, 185, 129, 0.15)'
+                                    : 'rgba(239, 68, 68, 0.15)',
+                                color:
+                                  (s.unrealized_pnl_pct || 0) >= 0
+                                    ? 'var(--signal-strong)'
+                                    : '#EF4444',
+                              }}
+                            >
+                              {(s.unrealized_pnl_pct || 0) >= 0 ? '+' : ''}
+                              {Number(s.unrealized_pnl_pct || 0).toFixed(2)}%
+                            </span>
+                          </td>
                           <td style={{ color: 'var(--signal-strong)', fontWeight: 'bold' }}>
-                            ${Number(s.tp_price).toFixed(4)} (+7.0%)
+                            {fmtPrice(s.tp_price)} (+7.0%)
                           </td>
                           <td style={{ color: '#EF4444', fontWeight: 'bold' }}>
-                            ${Number(s.sl_price).toFixed(4)} (-3.5%)
+                            {fmtPrice(s.sl_price)} (-3.5%)
                           </td>
                           <td>1 : {s.rr_ratio || 2.0}</td>
-                          <td>
-                            <span className="score-badge score-70">{s.confluence_score} / 100</span>
-                          </td>
                           <td>
                             <span className="status-active">⏳ MONITORING</span>
                           </td>
@@ -443,8 +477,8 @@ export default function App() {
                                 </div>
                               </div>
                             </td>
-                            <td className="price-text">${Number(h.entry_price).toFixed(4)}</td>
-                            <td className="price-text">${Number(h.close_price || 0).toFixed(4)}</td>
+                            <td className="price-text">{fmtPrice(h.entry_price)}</td>
+                            <td className="price-text">{fmtPrice(h.close_price)}</td>
                             <td>
                               {isWin ? (
                                 <span className="status-tp">🎯 TAKE PROFIT WIN</span>
