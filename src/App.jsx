@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE = import.meta.env.VITE_BACKEND_URL || '';
+
 export default function App() {
   const [mode, setMode] = useState('existing'); // 'existing', 'new', 'history'
   const [symbols, setSymbols] = useState('BTC,ETH,SOL,BNB,DOGE,PEPE,WIF,SHIB');
@@ -64,7 +66,7 @@ export default function App() {
 
   const fetchStatus = async () => {
     try {
-      const res = await axios.get('/api/status');
+      const res = await axios.get(`${API_BASE}/api/status`);
       setStatus(res.data);
     } catch (e) {
       console.warn('Backend API status check failed');
@@ -75,8 +77,8 @@ export default function App() {
     setLoading(true);
     try {
       const [actRes, histRes] = await Promise.all([
-        axios.get('/api/signals/active'),
-        axios.get('/api/signals/performance?days=30'),
+        axios.get(`${API_BASE}/api/signals/active`),
+        axios.get(`${API_BASE}/api/signals/performance?days=30`),
       ]);
       setActiveSignals(actRes.data.active_signals || []);
       setHistoryData(histRes.data);
@@ -94,7 +96,7 @@ export default function App() {
       const paramName = mode === 'new' ? 'query' : 'symbols';
       const paramVal = mode === 'new' ? query : symbols;
       const res = await axios.get(
-        `/api/scan?mode=${mode}&${paramName}=${encodeURIComponent(paramVal)}`
+        `${API_BASE}/api/scan?mode=${mode}&${paramName}=${encodeURIComponent(paramVal)}`
       );
 
       const data = res.data;
@@ -121,7 +123,7 @@ export default function App() {
 
   const handleTestTelegram = async () => {
     try {
-      const res = await axios.post('/api/telegram/test');
+      const res = await axios.post(`${API_BASE}/api/telegram/test`);
       if (res.data.success) {
         showToastMessage('✅ Telegram alert sent successfully to your phone!');
       } else {
