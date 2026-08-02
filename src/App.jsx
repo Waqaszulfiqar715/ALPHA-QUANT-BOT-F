@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_BACKEND_URL || '';
+const API_BASE = import.meta.env.VITE_BACKEND_URL || (import.meta.env.PROD ? 'https://alpha-quant-bot-b.onrender.com' : '');
 
 export default function App() {
   const [mode, setMode] = useState('existing'); // 'existing', 'new', 'history'
