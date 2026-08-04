@@ -362,6 +362,7 @@ export default function App() {
                   <thead>
                     <tr>
                       <th>SYMBOL</th>
+                      <th>TRIGGERED AT</th>
                       <th>ENTRY PRICE</th>
                       <th>LIVE PRICE</th>
                       <th>LIVE P&L</th>
@@ -374,7 +375,7 @@ export default function App() {
                   <tbody>
                     {activeSignals.length === 0 ? (
                       <tr className="empty-row">
-                        <td colSpan="8">
+                        <td colSpan="9">
                           No signals currently open. Bot will auto-add signals when Score ≥ 70 is detected!
                         </td>
                       </tr>
@@ -389,6 +390,9 @@ export default function App() {
                                 <div className="symbol-sub">{s.name}</div>
                               </div>
                             </div>
+                          </td>
+                          <td style={{ fontSize: '12px', color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>
+                            {s.opened_at ? new Date(s.opened_at).toLocaleString() : 'Just now'}
                           </td>
                           <td className="price-text">{fmtPrice(s.entry_price)}</td>
                           <td className="price-text" style={{ fontWeight: 'bold' }}>
