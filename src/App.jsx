@@ -24,7 +24,7 @@ export default function App() {
   const [lastUpdated, setLastUpdated] = useState('Never');
   const [selectedToken, setSelectedToken] = useState(null);
   const [toast, setToast] = useState(null);
-  const [autoLoop, setAutoLoop] = useState(false);
+  const [autoLoop, setAutoLoop] = useState(true);
 
   useEffect(() => {
     fetchStatus();
@@ -38,11 +38,10 @@ export default function App() {
   useEffect(() => {
     let interval = null;
     if (autoLoop) {
-      showToastMessage('⏳ 24/7 Auto-Monitoring Enabled (5m loop)');
       interval = setInterval(() => {
         if (mode === 'history') fetchHistoryAndActive();
         else runScan();
-      }, 300000);
+      }, 60000); // 1-minute automatic live refresh
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -267,7 +266,7 @@ export default function App() {
             <div className="stat-card">
               <div className="stat-label">Active Monitored Signals</div>
               <div className="stat-value stat-top">{activeSignals.length}</div>
-              <div className="stat-meta">Continuous 5m TP / SL Loop</div>
+              <div className="stat-meta">Continuous 1m TP / SL Loop</div>
             </div>
           </div>
         ) : (
@@ -341,7 +340,7 @@ export default function App() {
                 />
                 <span className="slider"></span>
               </label>
-              <span className="toggle-label">24/7 Auto-Monitor (5m)</span>
+              <span className="toggle-label">1-Min Live Auto-Refresh</span>
             </div>
           </div>
         </div>
